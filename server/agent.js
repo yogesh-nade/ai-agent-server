@@ -2,6 +2,9 @@
 // This is the core agent that handles LLM interactions and tool calling
 import LLMClient from './llm.js';
 import MongoTool from './tools/mongoTool.js';
+import MongoInsertTool from './tools/mongoInsertTool.js';
+import MongoDeleteTool from './tools/mongoDeleteTool.js';
+import MongoUpdateTool from './tools/mongoUpdateTool.js';
 
 class AIAgent {
     constructor() {
@@ -11,6 +14,9 @@ class AIAgent {
         
         // Register available tools
         this.registerTool(new MongoTool());
+        this.registerTool(new MongoInsertTool());
+        this.registerTool(new MongoDeleteTool());
+        this.registerTool(new MongoUpdateTool());
         
         console.log('🤖 AI Agent initialized with tools:', Array.from(this.tools.keys()));
     }
@@ -38,14 +44,23 @@ class AIAgent {
             });
 
             // System prompt to guide the agent behavior
-            const systemPrompt = `You are a helpful AI agent with access to MongoDB data tools. 
-You can help users query databases, find information, and provide insights.
+            const systemPrompt = `You are a helpful AI agent with access to MongoDB database tools. 
+You can help users query, insert, update, and delete data from databases.
 
 Available tools:
 - fetch_mongodb_data: Query MongoDB collections to find users, count records, or get specific data
+- insert_mongodb_data: Add new documents to MongoDB collections (single or multiple)
+- update_mongodb_data: Update existing documents in MongoDB collections
+- delete_mongodb_data: Delete documents from MongoDB collections (requires confirmation)
 
-When users ask about data, users in the database, or want to query information, use the MongoDB tool.
-Be helpful and explain what you found in a clear, human-friendly way.
+When users ask about:
+- Finding/searching data: Use fetch_mongodb_data
+- Adding/creating new records: Use insert_mongodb_data  
+- Updating/modifying existing data: Use update_mongodb_data
+- Removing/deleting records: Use delete_mongodb_data (be careful and ask for confirmation)
+
+Always be helpful and explain what you found or did in a clear, human-friendly way.
+For destructive operations (delete/update), be extra careful and explain what will happen.
 Always be concise but informative in your responses.`;
 
             // Prepare messages with system prompt
